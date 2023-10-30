@@ -97,6 +97,3 @@ print(len(clean_code))
 print(clean_code)
 interpreter = Interpreter(Memory)
 interpreter.run(clean_code)
-
-
-# 13s
