@@ -5,43 +5,38 @@ class Devisualizer(object):
         self.bfp = None
         self.graph = graph
         self.graph_to_bfp()
-        
+
     def graph_to_bfp(self) -> None:
-        """
-        IMPORTANT: This ONLY works for NON-compressed bfp graphs
-        """
         if self.graph.is_compressed == None:
            raise ValueError("No graph produced in inputted Visualizer instance - Please run {Visualizer instance}.bfp_to_graph() to use this function.")
 
-        elif self.graph.is_compressed:
-            raise ValueError("This function is only meant for NON-compressed bfp graphs - Please run {Visualizer instance}.bfp_to_graph() to use this function.")
+        #elif not self.graph.is_compressed:
+        #    raise ValueError("This function is only meant for COMPRESSED bfp graphs - Please run {Visualizer instance}.bfp_to_graph() to use this function.")
 
-        localbfp = ""
-        skipnext = False
+        localbfp = []
         for start, end, name in self.graph.edgelist:
-            if skipnext:
-                skipnext = False
+            namelist = name.split(" ")
+
+            if len(namelist)==1:
+                localbfp.insert(start,".")
+                continue
+            elif len(namelist)==2:
+                amount = int(namelist[1])
+                localbfp.insert(start,amount*".")
                 continue
 
-            namelist = name.split(" ")
-            if len(namelist)==1:
-                localbfp+="."
-                continue
-            
             parameter, opr, amount = namelist
             amount = int(amount)
 
-            if end != start+1: #Instruction is either "[" or "]" WILL NOT WORK FOR EMPTY LOOPS!!
-                skipnext = True
-                if opr == "==":
-                    localbfp += "["
-                    continue
-
-                if end == start-1:
-                    localbfp += "[]" #Edge case, end of empty loop encountered
-                    continue
-
-                localbfp += "]"
+            if opr == "==":
+                continue
+            elif opr == "!=":
+                if start<end:
+                    localbfp.insert(start,"[")
+                elif start>end:
+                    localbfp.insert(start,"]")
+                else:
+                    localbfp.insert(start,"[]")
                 continue
 
             if parameter == "data_pointer": #Instruction is either "<" or ">"
@@ -56,16 +51,7 @@ class Devisualizer(object):
                 else:
                     instr = "-"
                 
-            localbfp+=amount*instr
+            localbfp.insert(start,amount*instr)
 
-        self.bfp = localbfp
-
-            
-
-            
-            
-
-
-
-
+        self.bfp = "".join(localbfp)
             
