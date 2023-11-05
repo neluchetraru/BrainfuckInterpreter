@@ -12,6 +12,8 @@ class Visualizer(object):
         self.last_edge: tuple = tuple()
         self.count_sim: int = 1
         self.name: str = name
+        
+        self.is_compressed = None
 
     def add_edge(self, start: int, end: int, name: str) -> None:
         self.nodes[start] = 1
@@ -33,6 +35,7 @@ class Visualizer(object):
         return -1
 
     def bfp_to_graph(self) -> None:
+        self.is_compressed = False
         for instr in self.bfp:
             if instr == ">":
                 self.add_edge(
@@ -116,6 +119,8 @@ class Visualizer(object):
 
     def bfp_to_graph_compressed(self) -> None:
         self.bfp_to_graph()
+        self.is_compressed = True
+
         self.last_edge: tuple = self.edgelist[0]
         i = 1
         self.compressed = []
