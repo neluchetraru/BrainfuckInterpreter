@@ -31,7 +31,9 @@ class Devisualizer(object):
             if opr == "==":
                 continue
             elif opr == "!=":
-                if start<end:
+                if end==start+1:
+                    localbfp.insert(start,"[]")
+                elif start<end:
                     localbfp.insert(start,"[")
                 elif start>end:
                     localbfp.insert(start,"]")
