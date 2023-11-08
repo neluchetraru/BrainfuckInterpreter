@@ -12,7 +12,7 @@ class Visualizer(object):
         self.last_edge: tuple = tuple()
         self.count_sim: int = 1
         self.name: str = name
-        
+
         self.is_compressed = None
 
     def add_edge(self, start: int, end: int, name: str) -> None:
@@ -120,15 +120,21 @@ class Visualizer(object):
     def bfp_to_graph_compressed(self) -> None:
         self.bfp_to_graph()
         self.is_compressed = True
-
         self.last_edge: tuple = self.edgelist[0]
         i = 1
         self.compressed = []
         self.nodes = [0 for i in range(len(self.nodes))]
         while i < len(self.edgelist):
-            while self.edgelist[i][2] == self.last_edge[2]:
+            while i < len(self.edgelist) and self.edgelist[i][2] == self.last_edge[2]:
+                if (
+                    self.edgelist[i][2].split("==").__len__() == 2
+                    or self.edgelist[i][2].split("!=").__len__() == 2
+                ):
+                    i += 1
+                    continue
                 self.count_sim += 1
                 i += 1
+
             if self.count_sim > 1:
                 self.nodes[self.last_edge[0]] = 1
                 self.nodes[self.edgelist[i - 1][1]] = 1
@@ -143,7 +149,11 @@ class Visualizer(object):
                 self.nodes[self.last_edge[0]] = 1
                 self.nodes[self.last_edge[1]] = 1
                 self.compressed.append(self.last_edge)
+
             self.count_sim = 1
+            if i == len(self.edgelist):
+                self.edgelist = self.compressed
+                return
             self.last_edge = self.edgelist[i]
             i += 1
         self.compressed.append(self.last_edge)
