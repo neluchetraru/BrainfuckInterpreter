@@ -100,7 +100,8 @@ class Visualizer(object):
         temp = self.name
         if self.name == "":
             temp = "graph_"
-        return f'{temp}{str(time.time()).split(".")[0]}'
+        self.name = f'{temp}{str(time.time()).split(".")[0]}'
+        return self.name
 
     def viz(self) -> None:
         dot = graphviz.Digraph()
@@ -114,8 +115,8 @@ class Visualizer(object):
                 str(self.edgelist[i][1]),
                 label=self.edgelist[i][2],
             )
-        dot.format = "svg"
-        dot.render(f"./graphs/{self.get_name()}", view=True)
+        dot.format = "png"
+        dot.render(f"./graphs/{self.get_name()}", view=False)
 
     def bfp_to_graph_compressed(self) -> None:
         self.bfp_to_graph()
