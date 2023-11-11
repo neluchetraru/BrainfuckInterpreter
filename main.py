@@ -139,5 +139,7 @@ other_button.grid(row=0, column=2, padx=10)
 output_label = tk.Text(root, width=40, height=5)
 output_label.grid(row=2, column=0, padx=10, pady=10)
 
+
+root.resizable(False, False)
 # Start the Tkinter main loop
 root.mainloop()
