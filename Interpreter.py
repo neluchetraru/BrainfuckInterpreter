@@ -19,35 +19,16 @@ class Memory(object):
         return char
 
 
-class MemoryByteArray(object):
-    def __init__(self, size=30000) -> None:
-        self.size = size
-        self.memory = bytearray(size)
-
-    def get_memory(self) -> list:
-        return self.memory
-
-    def get_size(self) -> int:
-        return self.size
-
-    def print_at_pointer(self, pointer: int) -> None:
-        char = chr(int(str(self.memory[pointer])))
-        print(char, end="", flush=True)
-        return char
-
-
 class Interpreter(object):
     def __init__(self, memclass) -> None:
         self.memory = memclass()
         self.data_pointer = 0
         self.pc = 0
         self.stack = []
-        self.loop_depth = 0
         self.output = []
 
     def run(self, code: str) -> None:
         while self.pc < len(code):
-            print(self.memory.get_memory()[:8])
             if code[self.pc] == ">":
                 self.data_pointer += 1
             elif code[self.pc] == "<":
@@ -79,6 +60,7 @@ class Interpreter(object):
 
     def skip_until_nzero(self, code: str) -> None:
         depth = 0
+        pointer = self.pc
         while self.pc < len(code):
             if code[self.pc] == "[":
                 depth += 1
@@ -87,6 +69,8 @@ class Interpreter(object):
             if depth == 0:
                 return
             self.pc += 1
+        if depth != 0:
+            raise Exception("Unbalanced brackets in code.", pointer)
 
 
 def clean_code(code) -> list:
