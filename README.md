@@ -9,6 +9,7 @@
 - [ ] Show errors
 - [ ] Stop program if stack overflow
 - [x] Let the user devisualize a graph
+- [ ] Handle user input
 
 #### Optional
 
