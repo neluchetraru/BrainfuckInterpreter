@@ -30,9 +30,9 @@ class Interpreter(object):
     def run(self, code: str) -> None:
         while self.pc < len(code):
             if code[self.pc] == ">":
-                self.data_pointer += 1
+                self.data_pointer = (self.data_pointer+1)%(self.memory.size-1)
             elif code[self.pc] == "<":
-                self.data_pointer -= 1
+                self.data_pointer = (self.data_pointer-1)%(self.memory.size-1)
             elif code[self.pc] == "+":
                 self.memory.get_memory()[self.data_pointer] = (
                     self.memory.get_memory()[self.data_pointer] + 1

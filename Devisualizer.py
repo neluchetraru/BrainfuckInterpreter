@@ -81,14 +81,10 @@ class Devisualizer(object):
                 continue
             elif opr == "!=":               #Label: memory[data_pointer] != 0
                 
-                if end==start+1:            #Edgecase - Empty loop
-                    localbfp.insert(start,"[]")
-                elif start<end:             #Edge going forwards, meaning start of loop
+                if start<end:               #Edge going forwards, meaning start of loop
                     localbfp.insert(start,"[")
                 elif start>end:             #Edge going backwards, meaning end of loop
                     localbfp.insert(start,"]")
-                else:                       #DEPRECATED, empty loops were in one node
-                    localbfp.insert(start,"[]")
                 continue
 
             if parameter == "data_pointer": #Label: data_pointer [opr] [amount]
