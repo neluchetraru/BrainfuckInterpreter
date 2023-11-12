@@ -9,8 +9,8 @@
 - [ ] Show errors
 - [ ] Stop program if stack overflow
 - [x] Let the user devisualize a graph
-- [ ] Handle user input
+- [X] Handle user input
 
 #### Optional
 
-- [ ] Show memory at runtime
+- [X] Show memory at runtime

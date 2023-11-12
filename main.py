@@ -1,77 +1,32 @@
-# from Visualizer import Visualizer
-# from Devisualizer import Devisualizer
-
 # vis = Visualizer(
 #     # "++++++++[>++++[>++>+++]]",
 #     # "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.",
 #     "++[]--",
 #     "Simple",
 # )
-# # vis.bfp_to_graph()
-# vis.bfp_to_graph_compressed()
-# # vis.viz()
-
-# devis = Devisualizer(vis)
-
-# print(f"Original BFP = {vis.bfp}\nDeconstructed= {devis.bfp}")
 
 import tkinter as tk
 from Interpreter import Interpreter, Memory
 from Visualizer import Visualizer
 from Devisualizer import Devisualizer
 import time
+from threading import Thread
+from utils import ScrollableImage, MemoryViewer
+
+memory = Memory()
 
 
 def run_program():
     code = code_editor.get("1.0", "end-1c")  # Get the code from the text widget
-    inte = Interpreter(Memory)
-
+    output_label.delete("1.0", "end")  # Clear the output text widget
+    memory.reset()
+    inte = Interpreter(memory)
     time_ = time.time()
-    inte.run(code)
+    inte.run(code, printer=output_label, inputter=input_label)
     time_ = time.time() - time_
 
-    output_label.delete("1.0", "end")
-    output_label.insert(
-        "1.0", "".join(inte.output)
-    )  # Display the output in the output text widget
     output_label.insert("end", "\n")
     output_label.insert("end", f"Execution finished in {time_} seconds.")
-
-
-class ScrollableImage(tk.Frame):
-    def __init__(self, master=None, **kw):
-        self.image = kw.pop("image", None)
-        sw = kw.pop("scrollbarwidth", 10)
-        super(ScrollableImage, self).__init__(master=master, **kw)
-        self.cnvs = tk.Canvas(self, highlightthickness=0, **kw)
-        self.cnvs.create_image(0, 0, anchor="nw", image=self.image)
-        # Vertical and Horizontal scrollbars
-        self.v_scroll = tk.Scrollbar(self, orient="vertical", width=sw)
-        self.h_scroll = tk.Scrollbar(self, orient="horizontal", width=sw)
-        # Grid and configure weight.
-        self.cnvs.grid(row=0, column=0, sticky="nsew")
-        self.h_scroll.grid(row=1, column=0, sticky="ew")
-        self.v_scroll.grid(row=0, column=1, sticky="ns")
-        self.rowconfigure(0, weight=1)
-        self.columnconfigure(0, weight=1)
-        # Set the scrollbars to the canvas
-        self.cnvs.config(
-            xscrollcommand=self.h_scroll.set, yscrollcommand=self.v_scroll.set
-        )
-        # Set canvas view to the scrollbars
-        self.v_scroll.config(command=self.cnvs.yview)
-        self.h_scroll.config(command=self.cnvs.xview)
-        # Assign the region to be scrolled
-        self.cnvs.config(scrollregion=self.cnvs.bbox("all"))
-        self.cnvs.bind_class(self.cnvs, "<MouseWheel>", self.mouse_scroll)
-
-    def mouse_scroll(self, evt):
-        if evt.state == 0:
-            self.cnvs.yview_scroll(-1 * (evt.delta), "units")  # For MacOS
-            self.cnvs.yview_scroll(int(-1 * (evt.delta / 120)), "units")  # For windows
-        if evt.state == 1:
-            self.cnvs.xview_scroll(-1 * (evt.delta), "units")  # For MacOS
-            self.cnvs.xview_scroll(int(-1 * (evt.delta / 120)), "units")  # For windows
 
 
 def display_program_graph_simple():
@@ -143,6 +98,21 @@ def display_program_graph_compressed():
     image_window.pack()
 
 
+def open_memory_viewer(memory):
+    memory.reset()
+    viewer_window = tk.Toplevel()
+    viewer_window.title("Memory Viewer")
+
+    memory_viewer = MemoryViewer(viewer_window, memory)
+    memory_viewer.pack()
+
+    def update_entries():
+        memory_viewer.update_entries()
+        viewer_window.after(10, update_entries)
+
+    update_entries()
+
+
 # Create the main application window
 root = tk.Tk()
 root.title("Brainfuck Interpreter")
@@ -161,17 +131,23 @@ button_frame.grid(row=2, column=0, padx=10, pady=10)
 
 
 # Create a button to run the Brainfuck program and visualize it
-run_button = tk.Button(button_frame, text="Run program", command=run_program)
+run_button = tk.Button(
+    button_frame, text="Run program", command=lambda: Thread(target=run_program).start()
+)
 run_button.grid(row=0, column=0, padx=10, pady=5)
 
 # Create another button in the same frame
 other_button = tk.Button(
-    button_frame, text="Visualize Simple", command=display_program_graph_simple
+    button_frame,
+    text="Visualize Simple",
+    command=lambda: Thread(target=display_program_graph_simple).start(),
 )
 
 other_button.grid(row=0, column=1, padx=10, pady=5)
 other_button = tk.Button(
-    button_frame, text="Visualize Compressed", command=display_program_graph_compressed
+    button_frame,
+    text="Visualize Compressed",
+    command=lambda: Thread(target=display_program_graph_compressed).start(),
 )
 other_button.grid(row=0, column=2, padx=10)
 
@@ -194,7 +170,14 @@ label_1.grid(row=0, column=0, padx=10, sticky="w")
 output_label = tk.Text(output_frame, width=50, height=5)
 output_label.grid(row=4, column=0, padx=10, pady=10)
 
-
+open_viewer_button = tk.Button(
+    root,
+    text="Open Memory Viewer",
+    command=lambda: Thread(target=open_memory_viewer, args=(memory,)).start(),
+)
+open_viewer_button.grid(row=5, column=0, pady=10)
+# open_viewer_button.pack(pady=10)
 root.resizable(False, False)
+
 # Start the Tkinter main loop
 root.mainloop()
