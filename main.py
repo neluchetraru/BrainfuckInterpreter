@@ -4,13 +4,17 @@
 #     "++[]--",
 #     "Simple",
 # )
-
+predefined_programs = {
+    "Hello World": "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.",
+    "Fibonacci": "++[->+++<]>.-----------.+++++++.[->+++++<]>-.+++++++++++.",
+}
 import tkinter as tk
 from Interpreter import Interpreter, Memory
 from Visualizer import Visualizer
 from Devisualizer import Devisualizer
 import time
 from threading import Thread
+from tkinter import ttk
 from utils import ScrollableImage, MemoryViewer
 
 memory = Memory()
@@ -116,33 +120,55 @@ def open_memory_viewer(memory):
 # Create the main application window
 root = tk.Tk()
 root.title("Brainfuck Interpreter")
+current_row = 0
+
+# Predifined program part
+menu_frame = tk.Frame(root)
+menu_frame.grid(row=current_row, pady=10)
+current_row += 1
+program_var = tk.StringVar()
+program_var.set("Select a program")
+program_combobox = ttk.Combobox(
+    menu_frame, textvariable=program_var, values=list(predefined_programs.keys())
+)
+program_combobox.grid(row=0, column=0, padx=10)
+# Create a button to load the selected program
+load_button = tk.Button(
+    menu_frame, text="Load Program", command=lambda: load_program(program_var.get())
+)
+load_button.grid(row=0, column=1, padx=10)
 
 
+def load_program(selected_program):
+    code_editor.delete("1.0", "end")
+    code_editor.insert("1.0", predefined_programs[selected_program])
+
+
+# Brainfuck program part
 label_1 = tk.Label(root, text="Brainfuck Program:", anchor="w")
-label_1.grid(row=0, column=0, sticky="w", padx=20)
-
+label_1.grid(row=current_row, column=0, sticky="w", padx=20)
+current_row += 1
 # Create a text widget for code input
 code_editor = tk.Text(root, wrap=tk.WORD, width=50, height=20)
-code_editor.grid(row=1, column=0, padx=10, pady=10)
+code_editor.grid(row=current_row, column=0, padx=10, pady=10)
+current_row += 1
 
 # Create a frame to group the buttons in the same row
 button_frame = tk.Frame(root)
-button_frame.grid(row=2, column=0, padx=10, pady=10)
-
+button_frame.grid(row=current_row, column=0, padx=10, pady=10)
+current_row += 1
 
 # Create a button to run the Brainfuck program and visualize it
 run_button = tk.Button(
     button_frame, text="Run program", command=lambda: Thread(target=run_program).start()
 )
 run_button.grid(row=0, column=0, padx=10, pady=5)
-
 # Create another button in the same frame
 other_button = tk.Button(
     button_frame,
     text="Visualize Simple",
     command=lambda: Thread(target=display_program_graph_simple).start(),
 )
-
 other_button.grid(row=0, column=1, padx=10, pady=5)
 other_button = tk.Button(
     button_frame,
@@ -151,8 +177,11 @@ other_button = tk.Button(
 )
 other_button.grid(row=0, column=2, padx=10)
 
+
+# Input part
 input_frame = tk.Frame(root)
-input_frame.grid(row=3, column=0, padx=10, pady=10)
+input_frame.grid(row=current_row, column=0, padx=10, pady=10)
+current_row += 1
 
 label_1 = tk.Label(input_frame, text="Program Input", anchor="w")
 label_1.grid(row=0, column=0, padx=10, sticky="w")
@@ -160,23 +189,29 @@ label_1.grid(row=0, column=0, padx=10, sticky="w")
 input_label = tk.Text(input_frame, width=50, height=1)
 input_label.grid(row=1, column=0, padx=10, pady=10)
 
-
+# Output part
 output_frame = tk.Frame(root)
-output_frame.grid(row=4, column=0, padx=10, pady=10)
+output_frame.grid(row=current_row, column=0, padx=10, pady=10)
+
+current_row += 1
 
 label_1 = tk.Label(output_frame, text="Program Output", anchor="w")
 label_1.grid(row=0, column=0, padx=10, sticky="w")
 
 output_label = tk.Text(output_frame, width=50, height=5)
-output_label.grid(row=4, column=0, padx=10, pady=10)
+output_label.grid(row=current_row, column=0, padx=10, pady=10)
+
+current_row += 1
 
 open_viewer_button = tk.Button(
     root,
     text="Open Memory Viewer",
     command=lambda: Thread(target=open_memory_viewer, args=(memory,)).start(),
 )
-open_viewer_button.grid(row=5, column=0, pady=10)
-# open_viewer_button.pack(pady=10)
+open_viewer_button.grid(row=current_row, column=0, pady=10)
+current_row += 1
+
+# Make the window fixed size
 root.resizable(False, False)
 
 # Start the Tkinter main loop
