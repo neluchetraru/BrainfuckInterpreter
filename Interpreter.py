@@ -6,7 +6,7 @@ class Memory(object):
     def __init__(self, size=10) -> None:
         self.size = size
         self.memory = [0] * self.size
-        self.limit = 300
+        self.limit = 30000
 
     def get_memory(self) -> list:
         return self.memory
