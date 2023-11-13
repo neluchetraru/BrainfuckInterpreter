@@ -66,9 +66,9 @@ class Interpreter(object):
         self.inputter = inputter
         while self.pc < len(code):
             if code[self.pc] == ">":
-                self.data_pointer = self.data_pointer + 1
+                self.data_pointer = (self.data_pointer + 1) % self.memory.limit
             elif code[self.pc] == "<":
-                self.data_pointer = self.data_pointer - 1
+                self.data_pointer = (self.data_pointer - 1) % self.memory.limit
             elif code[self.pc] == "+":
                 self.memory.add_at_pointer(self.data_pointer, 1)
             elif code[self.pc] == "-":

@@ -6,7 +6,8 @@
 # )
 predefined_programs = {
     "Hello World": "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.",
-    "Fibonacci": "++[->+++<]>.-----------.+++++++.[->+++++<]>-.+++++++++++.",
+    "Fibonacci": ">++++++++++>+>+[[+++++[>++++++++<-]>.<++++++[>--------<-]+<<<]>.>>[[-]<[>+<-]>>[<<+>+>-]<[>+<-[>+<-[>+<-[>+<-[>+<-[>+<-[>+<-[>+<-[>+<-[>[-]>+>+<<<-[>+<-]]]]]]]]]]]+>>>]<<<]",
+    "Squares": "++++[>+++++<-]>[<+++++>-]+<+[>[>+>+<<-]++>>[<<+>>-]>>>[-]++>[-]+>>>+[[-]++++++>>>]<<<[[<++++++++<++>>-]+<.<[>----<-]<]<<[>>>>>[>>>[-]+++++++++<[>-<-]+++++++++>[-[<->-]+[<<<]]<[>+<-]>]<<-]<<-]",
 }
 import tkinter as tk
 from Interpreter import Interpreter, Memory
@@ -149,7 +150,7 @@ label_1 = tk.Label(root, text="Brainfuck Program:", anchor="w")
 label_1.grid(row=current_row, column=0, sticky="w", padx=20)
 current_row += 1
 # Create a text widget for code input
-code_editor = tk.Text(root, wrap=tk.WORD, width=50, height=20)
+code_editor = tk.Text(root, wrap=tk.WORD, width=50, height=7)
 code_editor.grid(row=current_row, column=0, padx=10, pady=10)
 current_row += 1
 
@@ -183,7 +184,7 @@ input_frame = tk.Frame(root)
 input_frame.grid(row=current_row, column=0, padx=10, pady=10)
 current_row += 1
 
-label_1 = tk.Label(input_frame, text="Program Input", anchor="w")
+label_1 = tk.Label(input_frame, text="Program Input:", anchor="w")
 label_1.grid(row=0, column=0, padx=10, sticky="w")
 
 input_label = tk.Text(input_frame, width=50, height=1)
@@ -195,7 +196,7 @@ output_frame.grid(row=current_row, column=0, padx=10, pady=10)
 
 current_row += 1
 
-label_1 = tk.Label(output_frame, text="Program Output", anchor="w")
+label_1 = tk.Label(output_frame, text="Program Output:", anchor="w")
 label_1.grid(row=0, column=0, padx=10, sticky="w")
 
 output_label = tk.Text(output_frame, width=50, height=5)
