@@ -94,6 +94,8 @@ class Visualizer(object):
                     self.instruction_pointer + 1,
                     f"print(chr(memory[data_pointer]))",
                 )
+            else:
+                self.instruction_pointer-=1 #failsafe to not have weird node numbers
             self.instruction_pointer += 1
 
     def get_name(self) -> str:
@@ -171,13 +173,13 @@ class Visualizer(object):
                 f"{operation} -= {operand_1 + operand_2}",
             )
 
-        elif opr1 == "-" and opr2 == "+":
+        elif operand_1-operand_2<0:
             return (
                 edge_1[0],
                 edge_2[1],
-                f"{operation} -= {operand_1 - operand_2}",
+                f"{operation} -= {abs(operand_1 - operand_2)}",
             )
-        elif opr1 == "+" and opr2 == "-":
+        else:
             return (
                 edge_1[0],
                 edge_2[1],
