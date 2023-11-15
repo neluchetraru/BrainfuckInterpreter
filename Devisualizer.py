@@ -44,6 +44,7 @@ class Devisualizer(object):
         the BrainFuck Program from it, and saves it as
         a string to the class variable "bfp".
 
+        Return type: None
 
         Example: THIS IS AN INTERNAL FUNCTION - 
                  IT WILL BE RUN UPON INITIALIZATION OF 
