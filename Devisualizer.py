@@ -2,7 +2,7 @@ from Visualizer import Visualizer
 
 class Devisualizer(object):
     """
-    Devisualizer, which is made for obtained BrainFuck code 
+    Devisualizer, which is made for obtaining BrainFuck code 
     from a program graph made using the Visualizer class
 
     Before making a Devisualizer instance, make sure the

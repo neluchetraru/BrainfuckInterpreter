@@ -3,6 +3,81 @@ import time
 
 
 class Visualizer(object):
+    """
+    Visualizer, made for obtaining a program graph from a
+    BrainFuck program as an input string list.
+
+    The graphs can be obtained either by running class
+    function bfp_to_graph() or bfp_to_graph_compressed().
+    The former is the graph most true to the program, 
+    and the latter is the graph obtained by combining
+    certain edges into one.
+
+
+    Input:
+
+    bfp: str list or str, the BrainFuck program.
+
+    name: str, will be part of the name of the file the
+          graph gets saved to, otherwise it will simply
+          be "graph_" (see get_name() function).
+
+          
+    Attributes:
+
+    edgelist: (int * int * str) tuple list, used to store
+              edges of the produced graph.
+
+    nodes: int list, is used to keep track of which nodes
+           are actually used: if used, the number at that
+           index will be updated to 1, otherwise 0 (see
+           viz() function).
+
+    bfp: str list or str, the BrainFuck program from input
+
+    instruction_pointer: ????????????????????????????????
+
+    stack: ????????????????????????????????
+
+    last_edge: ????????????????????????????????
+
+    count_sim: ????????????????????????????????
+
+    name: ????????????????????????????????
+
+    is_compressed: ????????????????????????????????
+
+    
+    Functions (check their docs):
+
+    add_edge: int * int * str -> None
+
+    find_end_loop: int -> int
+
+    bfp_to_graph: None -> None
+
+    get_name: None -> str
+
+    viz: None -> None
+
+    is_math_operation: (int * int * str) tuple -> bool
+
+    get_operation: (int * int * str) tuple -> str
+
+    get_operand: (int * int * str) tuple -> int
+    
+    get_operator: (int * int * str) tuple -> str
+
+    is_optimizable: (int * int * str) tuple * 
+                    (int * int * str) tuple -> bool
+
+    get_optimized_edge: (int * int * str) tuple * 
+                        (int * int * str) tuple -> 
+                        (int * int * str) tuple
+
+    bfp_to_graph_compressed: None -> None
+    """
+
     def __init__(self, bfp: [str], name: str = "") -> None:
         self.edgelist: [tuple] = []
         self.nodes: [int] = [0] * (len(bfp) + 1)
@@ -16,11 +91,43 @@ class Visualizer(object):
         self.is_compressed = None
 
     def add_edge(self, start: int, end: int, name: str) -> None:
+        """
+        Text
+
+        
+        Return type: None
+
+        
+        Input:
+
+        start: int, text
+
+        end: int, text
+
+        name: str, text
+
+
+        Example: (Example)
+        """
         self.nodes[start] = 1
         self.nodes[end] = 1
         self.edgelist.append((start, end, name))
 
     def find_end_loop(self, s) -> int:
+        """
+        Text
+
+        
+        Return type: int
+
+        
+        Input:
+
+        s: int, text
+
+
+        Example: (Example)
+        """
         depth = 0
         src = s
         for instr in self.bfp[src:]:
@@ -35,6 +142,15 @@ class Visualizer(object):
         return -1
 
     def bfp_to_graph(self) -> None:
+        """
+        Text
+
+        
+        Return type: None
+
+
+        Example: (Example)
+        """
         self.is_compressed = False
         for instr in self.bfp:
             if instr == ">":
@@ -99,6 +215,15 @@ class Visualizer(object):
             self.instruction_pointer += 1
 
     def get_name(self) -> str:
+        """
+        Text
+
+        
+        Return type: str
+
+
+        Example: (Example)
+        """
         temp = self.name
         if self.name == "":
             temp = "graph_"
@@ -106,6 +231,15 @@ class Visualizer(object):
         return self.name
 
     def viz(self) -> None:
+        """
+        Text
+
+        
+        Return type: None
+
+
+        Example: (Example)
+        """
         dot = graphviz.Digraph()
         for i in range(len(self.nodes)):
             if self.nodes[i] == 1:
@@ -120,31 +254,103 @@ class Visualizer(object):
         dot.format = "png"
         dot.render(f"./graphs/{self.get_name()}", view=False)
 
-    def is_math_operation(self, edge: tuple()) -> bool:
+    def is_math_operation(self, edge: (int,int,str)) -> bool:
+        """
+        Text
+
+        
+        Return type: bool
+
+
+        Input:
+
+        edge: (int * int * str) tuple, text
+
+
+        Example: (Example)
+        """
         if len(edge[2].split("+=")) == 2:
             return True
         elif len(edge[2].split("-=")) == 2:
             return True
         return False
 
-    def get_operation(self, edge: tuple()) -> str:
+    def get_operation(self, edge: (int,int,str)) -> str:
+        """
+        Text
+
+        
+        Return type: str
+
+
+        Input:
+
+        edge: (int * int * str) tuple, text
+
+
+        Example: (Example)
+        """
         if len(edge[2].split(" +=")) == 2:
             return edge[2].split(" +=")[0]
         elif len(edge[2].split(" -=")) == 2:
             return edge[2].split(" -=")[0]
         return ""
 
-    def get_operand(self, edge: tuple()) -> int:
+    def get_operand(self, edge: (int,int,str)) -> int:
+        """
+        Text
+
+        
+        Return type: int
+
+
+        Input:
+
+        edge: (int * int * str) tuple, text
+
+
+        Example: (Example)
+        """
         return int(edge[2].split("=")[1])
 
-    def get_operator(self, edge: tuple()) -> str:
+    def get_operator(self, edge: (int,int,str)) -> str:
+        """
+        Text
+
+        
+        Return type: str
+
+
+        Input:
+
+        edge: (int * int * str) tuple, text
+
+
+        Example: (Example)
+        """
         if len(edge[2].split("+=")) == 2:
             return "+"
         elif len(edge[2].split("-=")) == 2:
             return "-"
         return ""
 
-    def is_optimizable(self, edge_1: tuple(), edge_2: tuple()) -> bool:
+    def is_optimizable(self, edge_1: (int,int,str), edge_2: (int,int,str)) -> bool:
+        """
+        Text
+
+        
+        Return type: bool
+
+
+        Input:
+
+        edge_1: (int * int * str) tuple, text
+
+        edge_2: (int * int * str) tuple, text
+
+
+        Example: (Example)
+        """
         if (
             (self.get_operator(edge_1) == "+" and self.get_operator(edge_2) == "+")
             or (self.get_operator(edge_1) == "-" and self.get_operator(edge_2) == "-")
@@ -154,7 +360,23 @@ class Visualizer(object):
             return True
         return False
 
-    def get_optimized_edge(self, edge_1: tuple(), edge_2: tuple()) -> tuple():
+    def get_optimized_edge(self, edge_1: (int,int,str), edge_2: (int,int,str)) -> (int,int,str):
+        """
+        Text
+
+        
+        Return type: (int * int * str) tuple
+
+
+        Input:
+
+        edge_1: (int * int * str) tuple, text
+
+        edge_2: (int * int * str) tuple, text
+
+
+        Example: (Example)
+        """
         operand_1 = self.get_operand(edge_1)
         operand_2 = self.get_operand(edge_2)
         operation = self.get_operation(edge_1)
@@ -189,6 +411,15 @@ class Visualizer(object):
         return
 
     def bfp_to_graph_compressed(self) -> None:
+        """
+        Text
+
+        
+        Return type: None
+
+
+        Example: (Example)
+        """
         self.bfp_to_graph()
         self.is_compressed = True
         self.last_edge: tuple = self.edgelist[0]
