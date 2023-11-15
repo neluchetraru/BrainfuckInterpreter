@@ -16,7 +16,7 @@ class Visualizer(object):
 
     Input:
 
-    bfp: str list or str, the BrainFuck program.
+    bfp: str, the BrainFuck program.
 
     name: str, will be part of the name of the file the
           graph gets saved to, otherwise it will simply
@@ -28,24 +28,34 @@ class Visualizer(object):
     edgelist: (int * int * str) tuple list, used to store
               edges of the produced graph.
 
-    nodes: int list, is used to keep track of which nodes
-           are actually used: if used, the number at that
-           index will be updated to 1, otherwise 0 (see
-           viz() function).
+    bfp: str, the BrainFuck program from input
+         (see above)
 
-    bfp: str list or str, the BrainFuck program from input
+    instruction_pointer: int, corresponds to the 
+                         instruction pointer of the bfp
+                         (see bfp_to_graph() function).
 
-    instruction_pointer: ????????????????????????????????
+    stack: int list, corresponds to the loop stack
+           (see bfp_to_graph() function).
 
-    stack: ????????????????????????????????
+    last_edge: (int * int * str) tuple, used as a variable
+               in bfp_to_graph_compressed() function to
+               keep track of the edge in the last iteration
 
-    last_edge: ????????????????????????????????
+    count_dup: int, used as a variable in
+               bfp_to_graph_compressed() function to keep
+               track of how many duplicate edges there are 
+               in a row (in order to compress them)
 
-    count_sim: ????????????????????????????????
+    name: str, the name from input (see above), but after
+          running get_name() will be changed to also have
+          numbers from current time (for unique file name
+          purposes).
 
-    name: ????????????????????????????????
-
-    is_compressed: ????????????????????????????????
+    is_compressed: bool, initially None. If bfp_to_graph()
+                   has been run, it will be False, if
+                   bfp_to_graph_compressed() has been run,
+                   it will be True
 
     
     Functions (check their docs):
@@ -78,21 +88,20 @@ class Visualizer(object):
     bfp_to_graph_compressed: None -> None
     """
 
-    def __init__(self, bfp: [str], name: str = "") -> None:
+    def __init__(self, bfp: str, name: str = "") -> None:
         self.edgelist: [tuple] = []
-        self.nodes: [int] = [0] * (len(bfp) + 1)
-        self.bfp: [str] = bfp
+        self.bfp: str = bfp
         self.instruction_pointer: int = 0
         self.stack: [int] = []
         self.last_edge: tuple = tuple()
-        self.count_sim: int = 1
+        self.count_dup: int = 1
         self.name: str = name
 
         self.is_compressed = None
 
     def add_edge(self, start: int, end: int, name: str) -> None:
         """
-        Text
+        Adds an edge to the edgelist class variable
 
         
         Return type: None
@@ -100,22 +109,23 @@ class Visualizer(object):
         
         Input:
 
-        start: int, text
+        start: int, starting node
 
-        end: int, text
+        end: int, end node
 
-        name: str, text
+        name: str, edge label
 
 
-        Example: (Example)
+        Example: THIS IS AN INTERNAL FUNCTION - 
+                 IT WILL BE RUN IN bfp_to_graph()
         """
-        self.nodes[start] = 1
-        self.nodes[end] = 1
         self.edgelist.append((start, end, name))
 
-    def find_end_loop(self, s) -> int:
+    def find_end_loop(self, start_instruction_pointer) -> int:
         """
-        Text
+        Finds instruction pointer for the end of the loop 
+        associated with the loop the inputted pointer, which
+        points to the start of loop.
 
         
         Return type: int
@@ -123,33 +133,39 @@ class Visualizer(object):
         
         Input:
 
-        s: int, text
+        start_instruction_pointer: int, the value of the pointer
+                                   where the loop starts
 
 
-        Example: (Example)
+        Example: THIS IS AN INTERNAL FUNCTION - 
+                 IT WILL BE RUN IN bfp_to_graph()
         """
         depth = 0
-        src = s
-        for instr in self.bfp[src:]:
+        for instr in self.bfp[start_instruction_pointer:]:
             if instr == "[":
                 depth += 1
             elif instr == "]":
                 depth -= 1
             if depth == 0:
-                return src
-            src += 1
+                return start_instruction_pointer
+            start_instruction_pointer += 1
 
         return -1
 
     def bfp_to_graph(self) -> None:
         """
-        Text
+        Turns the program in the class variable bfp into the
+        corresponding program graph. Each instruction is one
+        edge (except "[" and "]", there's both a ==0 and !=0 edge)
 
         
         Return type: None
 
 
-        Example: (Example)
+        Example: bfp = "++++++++++++++++++."
+                 vis = Visualizer(bfp)
+                 vis.bfp_to_graph()
+                 vis.viz() #graph saved to ./graphs/
         """
         self.is_compressed = False
         for instr in self.bfp:
@@ -216,13 +232,17 @@ class Visualizer(object):
 
     def get_name(self) -> str:
         """
-        Text
+        Returns the name chosen upon input - unless none
+        was chosen, in which case "graph_" is chosen instead -
+        together with the numbers from the current time for
+        unique file name purposes.
 
         
         Return type: str
 
 
-        Example: (Example)
+        Example: THIS IS AN INTERNAL FUNCTION - 
+                 IT WILL BE RUN IN viz()
         """
         temp = self.name
         if self.name == "":
@@ -241,10 +261,6 @@ class Visualizer(object):
         Example: (Example)
         """
         dot = graphviz.Digraph()
-        for i in range(len(self.nodes)):
-            if self.nodes[i] == 1:
-                dot.node(str(i), str(i))
-
         for i in range(len(self.edgelist)):
             dot.edge(
                 str(self.edgelist[i][0]),
@@ -395,20 +411,30 @@ class Visualizer(object):
                 f"{operation} -= {operand_1 + operand_2}",
             )
 
-        elif operand_1-operand_2<0:
+        elif opr1 == "-" and opr2 == "+":
+            if operand_1-operand_2<0:
+                return (
+                    edge_1[0],
+                    edge_2[1],
+                    f"{operation} += {abs(operand_1-operand_2)}"
+                )
             return (
                 edge_1[0],
                 edge_2[1],
                 f"{operation} -= {abs(operand_1 - operand_2)}",
             )
         else:
+            if operand_1-operand_2<0:
+                return (
+                    edge_1[0],
+                    edge_2[1],
+                    f"{operation} -= {abs(operand_1-operand_2)}"
+                )
             return (
                 edge_1[0],
                 edge_2[1],
-                f"{operation} += {operand_1 - operand_2}",
+                f"{operation} += {abs(operand_1 - operand_2)}",
             )
-
-        return
 
     def bfp_to_graph_compressed(self) -> None:
         """
@@ -425,47 +451,47 @@ class Visualizer(object):
         self.last_edge: tuple = self.edgelist[0]
         i = 1
         self.compressed = []
-        self.nodes = [0 for _ in range(len(self.nodes))]
         while i <= len(self.edgelist):
+
+            #Count how many duplicate edges in a row
             while (
                 i < len(self.edgelist)
                 and self.edgelist[i][2] == self.last_edge[2]
                 and self.is_math_operation(self.edgelist[i])
             ):
-                self.count_sim += 1
+                self.count_dup += 1
                 i += 1
 
-            if self.count_sim > 1:
-                self.nodes[self.last_edge[0]] = 1
-                self.nodes[self.edgelist[i - 1][1]] = 1
-
+            #If duplicate edges, add new compressed edge
+            if self.count_dup > 1:
                 self.compressed.append(
                     (
                         self.last_edge[0],
                         self.edgelist[i - 1][1],
-                        f"{self.get_operation(self.last_edge)} {self.get_operator(self.last_edge)}= {self.count_sim}",
+                        f"{self.get_operation(self.last_edge)} {self.get_operator(self.last_edge)}= {self.count_dup}",
                     )
                 )
+            
+            #No duplicate edges, last edge is compressed
             else:
-                self.nodes[self.last_edge[0]] = 1
-                self.nodes[self.last_edge[1]] = 1
                 self.compressed.append(self.last_edge)
 
+            #Compress added edge with the one prior if possible
             if len(self.compressed) > 1 and self.is_optimizable(
-                self.compressed[-1], self.compressed[-2]
+                self.compressed[-2], self.compressed[-1]
             ):
                 new_edge = self.get_optimized_edge(
                     self.compressed[-2], self.compressed[-1]
                 )
                 self.compressed[-2] = new_edge
-                self.nodes[self.compressed[-1][0]] = 0
-                self.nodes[self.compressed[-1][1]] = 0
                 self.compressed.pop()
 
-            self.count_sim = 1
+            #Every edge has been check, update edgelist, end function
             if i == len(self.edgelist):
                 self.edgelist = self.compressed
                 return
+            
+            #Update last_edge - if last compressed edge is +=/-= 0, remove it
             self.last_edge = self.edgelist[i]
             if (
                 self.is_math_operation(self.compressed[-1])
@@ -476,11 +502,12 @@ class Visualizer(object):
                     self.last_edge[1],
                     self.last_edge[2],
                 )
-                self.nodes[self.compressed[-1][0]] = 0
-                self.nodes[self.compressed[-1][1]] = 0
                 self.compressed.pop()
 
+            #Reset counters
+            self.count_dup = 1
             i += 1
 
+        #Every edge has been check, update edgelist, end function
         self.compressed.append(self.last_edge)
         self.edgelist = self.compressed

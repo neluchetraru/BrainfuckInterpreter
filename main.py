@@ -48,11 +48,6 @@ def display_program_graph_simple():
     graph_window.geometry(f"{width + 50}x{height+20}")
 
     # Label for graph info
-    graph_info = tk.Label(
-        graph_window,
-        text=f"Nodes: {len(vis.edgelist)}\nEdges: {len(vis.nodes)}",
-    )
-    graph_info.pack()
     image_window = ScrollableImage(
         graph_window,
         image=graph_img,
@@ -91,15 +86,6 @@ def display_program_graph_compressed():
     graph_img = tk.PhotoImage(file=f"./graphs/{vis.name}.png")
     height = min(root.winfo_screenheight() - 100, graph_img.height())
     width = min(root.winfo_screenwidth(), graph_img.width())
-    node_count = 0
-    for i in vis.nodes:
-        if i == 1:
-            node_count += 1
-    graph_info = tk.Label(
-        graph_window,
-        text=f"Nodes: {node_count}\nEdges: {len(vis.compressed)}",
-    )
-    graph_info.pack()
     image_window = ScrollableImage(
         graph_window,
         image=graph_img,
