@@ -6,6 +6,7 @@ class Memory(object):
     def __init__(self, size=10) -> None:
         self.size = size
         self.memory = [0] * self.size
+        self.memory_accesses = [0] * self.size
         self.limit = 30000
 
     def get_memory(self) -> list:
@@ -22,7 +23,9 @@ class Memory(object):
     def add_at_pointer(self, pointer: int, amount: int) -> None:
         if len(self.memory) - 1 < pointer:
             self.memory += [0] * (pointer - len(self.memory) + 1)
+            self.memory_accesses += [0] * (pointer - len(self.memory_accesses) + 1)
         self.memory[pointer] = (self.memory[pointer] + amount) % 256
+        self.memory_accesses[pointer] += 1
         if self.memory[pointer] > self.limit:
             raise Exception("Memory limit exceeded.")
         return self.memory[pointer]
@@ -30,14 +33,18 @@ class Memory(object):
     def get_value_at(self, pointer: int) -> int:
         if len(self.memory) - 1 < pointer:
             self.memory += [0] * (pointer - len(self.memory) + 1)
+            self.memory_accesses += [0] * (pointer - len(self.memory_accesses) + 1)
+
+        self.memory_accesses[pointer] += 1
         return self.memory[pointer]
 
     def reset(self) -> None:
         self.memory = [0] * self.size
+        self.memory_accesses = [0] * self.size
 
 
 class Interpreter(object):
-    def __init__(self, memory, timeout=10000) -> None:
+    def __init__(self, memory, timeout=0) -> None:
         self.memory = memory
         self.data_pointer = 0
         self.pc = 0
