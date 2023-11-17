@@ -54,6 +54,7 @@ class Interpreter(object):
         self.stack = []
         self.timeout = timeout
         self.count_loops = 0
+        self.running = True
 
         self.input_pointer = 0
 
@@ -92,7 +93,7 @@ class Interpreter(object):
 
         prev_memory_state = self.memory.get_memory_state()
 
-        while self.pc < len(code):
+        while self.pc < len(code) and self.running:
             if code[self.pc] == ">":
                 self.move_pointer(1)
             elif code[self.pc] == "<":

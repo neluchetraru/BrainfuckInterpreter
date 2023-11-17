@@ -27,10 +27,12 @@ from optimize import (
 )
 
 memory = Memory()
+inte = Interpreter(memory)
 detect_infinite_loops = True
 
 
 def run_program():
+    global inte
     code = code_editor.get("1.0", "end-1c")  # Get the code from the text widget
     output_label.delete("1.0", "end")  # Clear the output text widget
     memory.reset()
@@ -252,13 +254,19 @@ def generate_program_controls_window():
     program_controls_window.title("Program Controls")
     button_frame = tk.Frame(program_controls_window)
     button_frame.grid(row=0, column=0, padx=10, pady=10)
-
     # Create a button to run the Brainfuck program and visualize it
-    tk.Button(
+    run_program_btn = tk.Button(
         button_frame,
         text="Run program",
-        command=lambda: Thread(target=run_program).start(),
-    ).grid(row=0, column=0, padx=10, pady=5)
+        command=lambda: handle_toggle_program_start(),
+    )
+
+    run_program_btn.grid(row=0, column=0, padx=10, pady=5)
+
+    def handle_toggle_program_start():
+        program_thread = Thread(target=run_program)
+        program_thread.start()
+
     # Create another button in the same frame
     tk.Button(
         button_frame,

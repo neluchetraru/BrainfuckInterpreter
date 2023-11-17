@@ -353,6 +353,13 @@ class Visualizer(object):
             return "-"
         return ""
 
+    def is_comparing_operation(self, edge: (int, int, str)) -> bool:
+        if len(edge[2].split("==")) == 2:
+            return True
+        elif len(edge[2].split("!=")) == 2:
+            return True
+        return False
+
     def is_optimizable(self, edge_1: (int, int, str), edge_2: (int, int, str)) -> bool:
         """
         Determines if two edges in the graph can be optimized by combining them into a single edge.
@@ -508,6 +515,13 @@ class Visualizer(object):
                     self.last_edge[1],
                     self.last_edge[2],
                 )
+                if self.is_comparing_operation(self.last_edge):
+                    self.last_edge = (
+                        self.last_edge[1],
+                        self.last_edge[1],
+                        self.last_edge[2],
+                    )
+                    self.compressed.pop()
                 self.compressed.pop()
 
             # Reset counters
