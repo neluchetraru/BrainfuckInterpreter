@@ -66,21 +66,23 @@ class Interpreter(object):
         except:
             data = []
         if self.input_pointer >= len(data):
-            self.printer.delete("end-1c")
-            self.printer.insert("end", "ERROR: Input limit exceeded.")
+            self.output("ERROR: Input limit exceeded.")
             raise Exception("Input limit exceeded.")
         else:
             self.input_pointer += 1
             return ord(data[self.input_pointer - 1])
 
-    def output(self, arg) -> str:
-        self.printer.insert("end", arg)
+    def output(self, arg, clear=False) -> str:
+        if clear and self.printer:
+            self.printer.delete("end-1c")
+        if self.printer:
+            self.printer.insert("end", arg)
 
     def move_pointer(self, amount: int) -> int:
         self.data_pointer = (self.data_pointer + amount) % self.memory.limit
         return self.data_pointer
 
-    def run(self, code: str, printer, inputter) -> None:
+    def run(self, code: str, printer=None, inputter=None) -> None:
         self.printer = printer
         self.inputter = inputter
         code = clean_code(code)
@@ -88,7 +90,7 @@ class Interpreter(object):
         try:
             syntax_checker(code)
         except Exception:
-            self.printer.insert("end", "ERROR: Unbalanced brackets in code.")
+            self.output("ERROR: Unbalanced brackets in code.")
             return
 
         prev_memory_state = self.memory.get_memory_state()
@@ -121,8 +123,7 @@ class Interpreter(object):
                             self.count_loops += 1
                             prev_memory_state = current_memory_state
                             if self.count_loops > self.timeout:
-                                self.printer.insert(
-                                    "end",
+                                self.output(
                                     "ERROR: Timeout. Possible infinite loop detected.",
                                 )
                                 return
@@ -157,12 +158,16 @@ def clean_code(code) -> str:
     return new_code
 
 
-def syntax_checker(code) -> list:
-    l_brackets = 0
-    r_brackets = 0
-    l_brackets = re.findall(r"\[", code)
-    r_brackets = re.findall(r"\]", code)
-
-    if len(l_brackets) != len(r_brackets):
-        raise Exception("Unbalanced brackets in code.")
-    return True
+def syntax_checker(code) -> None:
+    depth = 0
+    i = 0
+    while i < len(code):
+        if code[i] == "[":
+            depth += 1
+        if code[i] == "]":
+            depth -= 1
+        if depth == 0:
+            return
+        i += 1
+    if depth != 0:
+        raise Exception("Unbalanced brackets in code.", i)

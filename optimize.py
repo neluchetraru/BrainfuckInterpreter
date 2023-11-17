@@ -6,7 +6,6 @@ def brainfuck_loop_unroll(bf_code):
         bf_code: str, The Brainfuck code string to optimize.
         mem_count: int, The number of memory cells to analyse.
 
-
     Returns:
         str: The optimized Brainfuck code string with all loops unrolled.
     """
