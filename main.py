@@ -4,15 +4,12 @@
 #     "++[]--",
 #     "Simple",
 # )
-predefined_programs = {
-    "Hello World": "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.",
-    "Fibonacci": ">++++++++++>+>+[[+++++[>++++++++<-]>.<++++++[>--------<-]+<<<]>.>>[[-]<[>+<-]>>[<<+>+>-]<[>+<-[>+<-[>+<-[>+<-[>+<-[>+<-[>+<-[>+<-[>+<-[>[-]>+>+<<<-[>+<-]]]]]]]]]]]+>>>]<<<]",
-    "Squares": "++++[>+++++<-]>[<+++++>-]+<+[>[>+>+<<-]++>>[<<+>>-]>>>[-]++>[-]+>>>+[[-]++++++>>>]<<<[[<++++++++<++>>-]+<.<[>----<-]<]<<[>>>>>[>>>[-]+++++++++<[>-<-]+++++++++>[-[<->-]+[<<<]]<[>+<-]>]<<-]<<-]",
-}
+
 
 import tkinter as tk
 from Interpreter import Interpreter, Memory
 from Visualizer import Visualizer
+from utils import get_graph_nodes_count
 from Devisualizer import Devisualizer
 import time
 from threading import Thread
@@ -30,6 +27,8 @@ from optimize import (
 memory = Memory()
 inte = Interpreter(memory)
 detect_infinite_loops = True
+
+from programs import predefined_programs
 
 
 def run_program():
@@ -54,6 +53,10 @@ def display_program_graph_simple():
 
     graph_window = tk.Toplevel(root)
     graph_window.title("Program Graph")
+    tk.Label(
+        graph_window,
+        text="Number of nodes: " + str(get_graph_nodes_count(f"./graphs/{vis.name}")),
+    ).pack()
     graph_img = tk.PhotoImage(file=f"./graphs/{vis.name}.png")
     height = min(root.winfo_screenheight() - 100, graph_img.height())
     width = min(root.winfo_screenwidth(), graph_img.width())
@@ -95,6 +98,10 @@ def display_program_graph_compressed():
 
     graph_window = tk.Toplevel(root)
     graph_window.title("Program Graph Compressed")
+    tk.Label(
+        graph_window,
+        text="Number of nodes: " + str(get_graph_nodes_count(f"./graphs/{vis.name}")),
+    ).pack()
     graph_img = tk.PhotoImage(file=f"./graphs/{vis.name}.png")
     height = min(root.winfo_screenheight() - 100, graph_img.height())
     width = min(root.winfo_screenwidth(), graph_img.width())
