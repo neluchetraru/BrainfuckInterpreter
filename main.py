@@ -27,14 +27,14 @@ from optimize import (
 )
 
 memory = Memory()
-detect_infinite_loops = False
+detect_infinite_loops = True
 
 
 def run_program():
     code = code_editor.get("1.0", "end-1c")  # Get the code from the text widget
     output_label.delete("1.0", "end")  # Clear the output text widget
     memory.reset()
-    inte = Interpreter(memory, 0 if detect_infinite_loops else 10000)
+    inte = Interpreter(memory, 1000 if detect_infinite_loops else 0)
     time_ = time.time()
     inte.run(code, printer=output_label, inputter=input_label)
     time_ = time.time() - time_

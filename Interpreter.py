@@ -42,6 +42,9 @@ class Memory(object):
         self.memory = [0] * self.size
         self.memory_accesses = [0] * self.size
 
+    def get_memory_state(self) -> list:
+        return sum(self.memory)
+
 
 class Interpreter(object):
     def __init__(self, memory, timeout=0) -> None:
@@ -50,7 +53,7 @@ class Interpreter(object):
         self.pc = 0
         self.stack = []
         self.timeout = timeout
-        self.count_instructions = 0
+        self.count_loops = 0
 
         self.input_pointer = 0
 
@@ -79,11 +82,16 @@ class Interpreter(object):
     def run(self, code: str, printer, inputter) -> None:
         self.printer = printer
         self.inputter = inputter
+        code = clean_code(code)
+
         try:
             syntax_checker(code)
-        except:
+        except Exception:
             self.printer.insert("end", "ERROR: Unbalanced brackets in code.")
             return
+
+        prev_memory_state = self.memory.get_memory_state()
+
         while self.pc < len(code):
             if code[self.pc] == ">":
                 self.move_pointer(1)
@@ -101,12 +109,28 @@ class Interpreter(object):
                 if self.memory.get_value_at(self.data_pointer) == 0:
                     self.skip_until_nzero(code)
                 else:
+                    if self.timeout > 0:
+                        prev_memory_state = self.memory.get_memory_state()
                     self.stack.append(self.pc)
             elif code[self.pc] == "]":
                 if self.memory.get_value_at(self.data_pointer) != 0:
+                    if self.timeout > 0:  # Only if infinite loop detection is enabled
+                        current_memory_state = self.memory.get_memory_state()
+                        if prev_memory_state == current_memory_state:
+                            self.count_loops += 1
+                            prev_memory_state = current_memory_state
+                            if self.count_loops > self.timeout:
+                                self.printer.insert(
+                                    "end",
+                                    "ERROR: Timeout. Possible infinite loop detected.",
+                                )
+                                return
                     self.pc = self.stack[-1]
                 else:
+                    if self.timeout > 0:
+                        self.count_loops = 0
                     self.stack = self.stack[:-1]
+
             self.pc += 1
 
     def skip_until_nzero(self, code: str) -> None:
@@ -124,10 +148,11 @@ class Interpreter(object):
             raise Exception("Unbalanced brackets in code.", pointer)
 
 
-def clean_code(code) -> list:
-    new_code = []
+def clean_code(code) -> str:
+    new_code = ""
     for char in re.findall(r"\+|\-|\<|\>|\[|\]|\.|\,", code):
-        new_code.append(char)
+        new_code += char
+
     return new_code
 
 
@@ -136,6 +161,7 @@ def syntax_checker(code) -> list:
     r_brackets = 0
     l_brackets = re.findall(r"\[", code)
     r_brackets = re.findall(r"\]", code)
+
     if len(l_brackets) != len(r_brackets):
         raise Exception("Unbalanced brackets in code.")
     return True
