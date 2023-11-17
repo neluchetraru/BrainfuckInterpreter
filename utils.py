@@ -74,3 +74,18 @@ class MemoryViewer(tk.Frame):
                 entry.config(fg="red")  # Highlight updated cells in red
             else:
                 entry.config(fg="black")  # Reset color if not updated
+
+
+def get_graph_nodes_count(path):
+    digraph = open(path).readlines()
+    nodes = set([])
+    for line in digraph:
+        temp = line.split("[label=")
+        if len(temp) < 2:
+            continue
+        node0 = int(temp[0].split("->")[0].strip())
+        node1 = int(temp[0].split("->")[1].strip())
+        nodes.add(node0)
+        nodes.add(node1)
+
+    return len(nodes)
