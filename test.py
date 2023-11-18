@@ -138,5 +138,11 @@ def memory_prediction_test(program_name):
     print(f"Average RPE: {avg_rpe}")
     print(f"Correct predictions: {correct}/{amount}")
 
+programs = ["Hello World 1","Hello World 2","Redundancy 1"]
+print("---------------------------------------------------------")
+for program in programs:
+    test(program,100000)
+    print("---------------------------------------------------------")
 
-# memory_prediction_test("Redundancy 1")
+test("Squares",100)
+print("---------------------------------------------------------")
