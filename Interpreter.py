@@ -8,6 +8,8 @@ class Memory(object):
         self.memory = [0] * self.size
         self.memory_accesses = [0] * self.size
         self.limit = 30000
+        self.max = [0] * 200  # debugging
+        self.max_pointer = 0
 
     def get_memory(self) -> list:
         return self.memory
@@ -28,6 +30,10 @@ class Memory(object):
         self.memory_accesses[pointer] += 1
         if self.memory[pointer] > self.limit:
             raise Exception("Memory limit exceeded.")
+        if self.memory[pointer] > self.max[pointer]:
+            self.max[pointer] = self.memory[pointer]
+        if self.max_pointer < pointer:
+            self.max_pointer = pointer
         return self.memory[pointer]
 
     def get_value_at(self, pointer: int) -> int:
