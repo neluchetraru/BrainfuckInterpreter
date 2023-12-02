@@ -8,7 +8,7 @@ class Memory(object):
         self.memory = [0] * self.size
         self.memory_accesses = [0] * self.size
         self.limit = 30000
-        self.max = [0] * 200  # debugging
+        self.max = [0] * self.size  # debugging
         self.max_pointer = 0
 
     def get_memory(self) -> list:
@@ -23,9 +23,10 @@ class Memory(object):
         return char
 
     def add_at_pointer(self, pointer: int, amount: int) -> None:
-        if len(self.memory) - 1 < pointer:
+        if pointer >= len(self.memory):
             self.memory += [0] * (pointer - len(self.memory) + 1)
             self.memory_accesses += [0] * (pointer - len(self.memory_accesses) + 1)
+            self.max += [0] * (pointer - len(self.max) + 1)
         self.memory[pointer] = (self.memory[pointer] + amount) % 256
         self.memory_accesses[pointer] += 1
         if self.memory[pointer] > self.limit:
@@ -40,7 +41,7 @@ class Memory(object):
         if len(self.memory) - 1 < pointer:
             self.memory += [0] * (pointer - len(self.memory) + 1)
             self.memory_accesses += [0] * (pointer - len(self.memory_accesses) + 1)
-
+            self.max += [0] * (pointer - len(self.max) + 1)
         self.memory_accesses[pointer] += 1
         return self.memory[pointer]
 
@@ -91,6 +92,7 @@ class Interpreter(object):
     def run(self, code: str, printer=None, inputter=None) -> None:
         self.printer = printer
         self.inputter = inputter
+        self.infinite_loop = False
         code = clean_code(code)
 
         try:
@@ -125,13 +127,14 @@ class Interpreter(object):
                 if self.memory.get_value_at(self.data_pointer) != 0:
                     if self.timeout > 0:  # Only if infinite loop detection is enabled
                         current_memory_state = self.memory.get_memory_state()
-                        if prev_memory_state == current_memory_state:
+                        if current_memory_state - prev_memory_state >= 0:
                             self.count_loops += 1
                             prev_memory_state = current_memory_state
                             if self.count_loops > self.timeout:
                                 self.output(
                                     "ERROR: Timeout. Possible infinite loop detected.",
                                 )
+                                self.infinite_loop = True  # For testing purposes
                                 return
                     self.pc = self.stack[-1]
                 else:

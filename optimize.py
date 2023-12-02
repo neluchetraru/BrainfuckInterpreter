@@ -18,15 +18,21 @@ def brainfuck_loop_unroll(bf_code):
         elif char == "]":
             if loop_stack:
                 start_index = loop_stack.pop()
-                loop_body = result[start_index:]
+                loop_body = result[start_index + 1 :]
                 result += loop_body
                 if loop_stack:
                     result += bf_code[start_index + 1 : loop_stack[-1]]
-                result += "]"
 
         result += char
 
     return result
+
+
+print(
+    brainfuck_loop_unroll(
+        "++[>++<-]-[>++++++<-]-[>++++++<-]-[>++++++<-]-[>++++++<-]-[>++++++<-]-[>++++++<-]-[>++++++<-]"
+    )
+)  # output: ++[>++<->++<-]
 
 
 # Abstract range
